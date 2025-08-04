@@ -5,7 +5,7 @@ This library provides common utilities and data structures used across
 the Joyride DNS ecosystem.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from .core import hello_world
 from .gossip import GossipMessage, GossipNode
