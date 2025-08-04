@@ -1,7 +1,5 @@
 """Tests for swimmies library core functionality."""
 
-import pytest
-
 from swimmies.core import hello_world, parse_dns_record, validate_domain_name
 
 

@@ -8,9 +8,17 @@ the Joyride DNS ecosystem.
 __version__ = "0.1.1"
 
 from .core import hello_world
+from .discovery import DiscoveryMessage, NodeDiscovery, NodeInfo
 from .gossip import GossipMessage, GossipNode
 
-__all__ = ["hello_world", "GossipNode", "GossipMessage"]
+__all__ = [
+    "hello_world",
+    "GossipNode",
+    "GossipMessage",
+    "NodeDiscovery",
+    "NodeInfo",
+    "DiscoveryMessage",
+]
 
 
 def main() -> None:
