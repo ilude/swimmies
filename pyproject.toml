@@ -1,6 +1,6 @@
 [project]
 name = "swimmies"
-version = "0.1.0" 
+version = "0.1.1" 
 description = "Core utilities and gossip protocol implementation for Joyride DNS Service"
 readme = "README.md"
 authors = [
@@ -15,8 +15,3 @@ swimmies = "swimmies:main"
 [build-system]
 requires = ["uv_build>=0.8.4,<0.9.0"]
 build-backend = "uv_build"
-
-[dependency-groups]
-dev = [
-    "pytest>=8.4.1",
-]
