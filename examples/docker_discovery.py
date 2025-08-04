@@ -22,14 +22,14 @@ def main():
     broadcast_port = int(os.getenv("BROADCAST_PORT", "8889"))
     heartbeat_interval = int(os.getenv("HEARTBEAT_INTERVAL", "10"))
     node_timeout = int(os.getenv("NODE_TIMEOUT", "30"))
-    
+
     # Additional metadata
     metadata = {
         "node_name": node_name,
         "version": "1.0.0",
         "container_id": os.getenv("HOSTNAME", "unknown"),
         "role": os.getenv("NODE_ROLE", "dns-server"),
-        "environment": os.getenv("ENVIRONMENT", "demo")
+        "environment": os.getenv("ENVIRONMENT", "demo"),
     }
 
     print(f"🚀 Starting discovery node: {node_id}")
@@ -48,7 +48,7 @@ def main():
         broadcast_port=broadcast_port,
         heartbeat_interval=heartbeat_interval,
         node_timeout=node_timeout,
-        metadata=metadata
+        metadata=metadata,
     )
 
     # Set up event callbacks
@@ -61,11 +61,15 @@ def main():
         print()
 
     def on_node_lost(node_info):
-        print(f"💔 LOST: {node_info.node_id} ({node_info.metadata.get('node_name', 'N/A')})")
+        print(
+            f"💔 LOST: {node_info.node_id} ({node_info.metadata.get('node_name', 'N/A')})"
+        )
         print()
 
     def on_node_updated(node_info):
-        print(f"🔄 UPDATED: {node_info.node_id} ({node_info.metadata.get('node_name', 'N/A')})")
+        print(
+            f"🔄 UPDATED: {node_info.node_id} ({node_info.metadata.get('node_name', 'N/A')})"
+        )
 
     discovery.on_node_discovered = on_node_discovered
     discovery.on_node_lost = on_node_lost
@@ -86,7 +90,7 @@ def main():
         last_report = 0
         while True:
             time.sleep(5)
-            
+
             # Report status every 30 seconds
             current_time = time.time()
             if current_time - last_report >= 30:
@@ -94,16 +98,18 @@ def main():
                 print(f"📊 STATUS REPORT - {time.strftime('%H:%M:%S')}")
                 print(f"   Node: {node_id} ({node_name})")
                 print(f"   Discovered: {len(nodes)} other nodes")
-                
+
                 if nodes:
                     print("   Network members:")
                     for node in sorted(nodes, key=lambda x: x.node_id):
                         age = time.time() - node.last_seen.timestamp()
-                        print(f"     - {node.node_id} ({node.metadata.get('node_name', 'N/A')}) "
-                              f"at {node.ip_address} (last seen {age:.0f}s ago)")
+                        print(
+                            f"     - {node.node_id} ({node.metadata.get('node_name', 'N/A')}) "
+                            f"at {node.ip_address} (last seen {age:.0f}s ago)"
+                        )
                 else:
                     print("   No other nodes discovered yet")
-                
+
                 print("=" * 50)
                 print()
                 last_report = current_time
