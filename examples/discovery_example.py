@@ -20,7 +20,7 @@ def main():
         broadcast_port=8889,
         heartbeat_interval=10,
         node_timeout=30,
-        metadata={"version": "1.0.0", "role": "dns-server"}
+        metadata={"version": "1.0.0", "role": "dns-server"},
     )
 
     # Set up callbacks
@@ -52,11 +52,13 @@ def main():
         # Keep running and show discovered nodes periodically
         while True:
             time.sleep(15)
-            
+
             nodes = discovery.get_discovered_nodes()
             print(f"📊 Currently discovered {len(nodes)} nodes:")
             for node in nodes:
-                print(f"   - {node.node_id} at {node.ip_address} (last seen: {node.last_seen})")
+                print(
+                    f"   - {node.node_id} at {node.ip_address} (last seen: {node.last_seen})"
+                )
             print()
 
     except KeyboardInterrupt:
