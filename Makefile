@@ -1,7 +1,7 @@
 # Swimmies Library Development Makefile
 # Standalone development commands for swimmies utility library
 
-.PHONY: help install test lint format clean type-check coverage example dev-install publish build
+.PHONY: help install test lint format clean type-check coverage example dev-install build demo-start demo-stop demo-logs demo-status demo-clean demo-build
 
 # Default target
 help: ## Show this help message
@@ -136,3 +136,80 @@ info: ## Show project information
 	@echo "  Dependencies: $$(uv run pip list | wc -l) packages"
 	@echo "  Test files: $$(find tests -name '*.py' | wc -l)"
 	@echo "  Source files: $$(find src -name '*.py' | wc -l)"
+
+# Docker demo commands
+demo-start: ## Start Docker discovery demo (3 nodes)
+	@echo "🚀 Starting Swimmies Discovery Demo..."
+	@echo ""
+	@docker compose -f docker-compose.yml up -d --build
+	@echo ""
+	@echo "✅ Demo started! Three nodes are now discovering each other."
+	@echo ""
+	@echo "To watch the discovery in action:"
+	@echo "  make demo-logs"
+	@echo ""
+	@echo "To see individual node logs:"
+	@echo "  make demo-logs-1  # Primary DNS Server"
+	@echo "  make demo-logs-2  # Secondary DNS Server" 
+	@echo "  make demo-logs-3  # DNS Cache Server"
+	@echo ""
+	@echo "Press Ctrl+C in the logs to stop watching (containers keep running)"
+	@echo "Use 'make demo-stop' to stop all containers"
+
+demo-stop: ## Stop Docker discovery demo
+	@echo "🛑 Stopping Swimmies Discovery Demo..."
+	@docker compose -f docker-compose.yml stop
+	@echo "✅ Demo stopped. Containers are stopped but not removed."
+	@echo "Use 'make demo-start' to restart or 'make demo-clean' to remove everything."
+
+demo-restart: ## Restart Docker discovery demo
+	@echo "🔄 Restarting Swimmies Discovery Demo..."
+	@docker compose -f docker-compose.yml restart
+	@echo "✅ Demo restarted."
+
+demo-logs: ## Show logs from all demo nodes
+	@echo "📋 Showing logs from all discovery nodes..."
+	@echo "Press Ctrl+C to stop watching logs"
+	@echo ""
+	@docker compose -f docker-compose.yml logs -f --tail=20
+
+demo-logs-1: ## Show logs from node 1 only
+	@echo "📋 Showing logs from discovery-node-1..."
+	@echo "Press Ctrl+C to stop watching logs"
+	@echo ""
+	@docker compose -f docker-compose.yml logs -f --tail=20 discovery-node-1
+
+demo-logs-2: ## Show logs from node 2 only
+	@echo "📋 Showing logs from discovery-node-2..."
+	@echo "Press Ctrl+C to stop watching logs"
+	@echo ""
+	@docker compose -f docker-compose.yml logs -f --tail=20 discovery-node-2
+
+demo-logs-3: ## Show logs from node 3 only
+	@echo "📋 Showing logs from discovery-node-3..."
+	@echo "Press Ctrl+C to stop watching logs"
+	@echo ""
+	@docker compose -f docker-compose.yml logs -f --tail=20 discovery-node-3
+
+demo-status: ## Show status of demo containers
+	@echo "📊 Container Status:"
+	@docker compose -f docker-compose.yml ps
+	@echo ""
+	@echo "🌐 Network Information:"
+	@docker network ls | grep swimmies || echo "No swimmies networks found"
+	@echo ""
+	@echo "📡 Port Mappings:"
+	@echo "  Node 1 (Primary DNS):   UDP 8889 -> 8889"
+	@echo "  Node 2 (Secondary DNS): UDP 8890 -> 8889"  
+	@echo "  Node 3 (Cache Server):  UDP 8891 -> 8889"
+
+demo-clean: ## Clean up demo containers and networks
+	@echo "🧹 Cleaning up Swimmies Discovery Demo..."
+	@docker compose -f docker-compose.yml down --volumes --remove-orphans
+	@docker image prune -f --filter label=com.docker.compose.project=swimmies
+	@echo "✅ Cleanup complete. All containers, networks, and volumes removed."
+
+demo-build: ## Build Docker images for demo
+	@echo "🔨 Building Swimmies Discovery Docker images..."
+	@docker compose -f docker-compose.yml build --no-cache
+	@echo "✅ Build complete."

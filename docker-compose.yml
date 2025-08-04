@@ -1,0 +1,75 @@
+services:
+  # Discovery Node 1 - Primary DNS Server
+  discovery-node-1:
+    build: .
+    container_name: swimmies-node-1
+    hostname: node-1
+    environment:
+      - NODE_ID=discovery-node-1
+      - NODE_NAME=Primary DNS Server
+      - SERVICE_TYPE=joyride-dns
+      - BROADCAST_PORT=8889
+      - HEARTBEAT_INTERVAL=10
+      - NODE_TIMEOUT=30
+      - NODE_ROLE=primary-dns
+      - ENVIRONMENT=demo
+    networks:
+      - discovery-net
+    ports:
+      - "8889:8889/udp"  # Expose for external monitoring if needed
+    command: ["uv", "run", "python", "examples/docker_discovery.py"]
+    restart: unless-stopped
+
+  # Discovery Node 2 - Secondary DNS Server
+  discovery-node-2:
+    build: .
+    container_name: swimmies-node-2
+    hostname: node-2
+    environment:
+      - NODE_ID=discovery-node-2
+      - NODE_NAME=Secondary DNS Server
+      - SERVICE_TYPE=joyride-dns
+      - BROADCAST_PORT=8889
+      - HEARTBEAT_INTERVAL=10
+      - NODE_TIMEOUT=30
+      - NODE_ROLE=secondary-dns
+      - ENVIRONMENT=demo
+    networks:
+      - discovery-net
+    ports:
+      - "8890:8889/udp"  # Different external port, same internal
+    command: ["uv", "run", "python", "examples/docker_discovery.py"]
+    restart: unless-stopped
+    depends_on:
+      - discovery-node-1
+
+  # Discovery Node 3 - Cache Server
+  discovery-node-3:
+    build: .
+    container_name: swimmies-node-3
+    hostname: node-3
+    environment:
+      - NODE_ID=discovery-node-3
+      - NODE_NAME=DNS Cache Server
+      - SERVICE_TYPE=joyride-dns
+      - BROADCAST_PORT=8889
+      - HEARTBEAT_INTERVAL=10
+      - NODE_TIMEOUT=30
+      - NODE_ROLE=cache-server
+      - ENVIRONMENT=demo
+    networks:
+      - discovery-net
+    ports:
+      - "8891:8889/udp"  # Different external port, same internal
+    command: ["uv", "run", "python", "examples/docker_discovery.py"]
+    restart: unless-stopped
+    depends_on:
+      - discovery-node-1
+      - discovery-node-2
+
+networks:
+  discovery-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
